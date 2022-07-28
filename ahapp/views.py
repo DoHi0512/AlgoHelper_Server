@@ -65,8 +65,7 @@ def registerAPI(request):
 
 @api_view(['POST'])
 def loginCheckAPI(request):
-    data = json.loads(request)
-    check = get_object_or_404(Users, userName=data[userName], passwd=data[passwd])
-    if check != '404':
-        return Response(True)
-    return Response(status=status.HTTP_400_BAD_REQUEST)
+    dat = json.load(request)
+    check = get_object_or_404(
+        Users, userName=dat['userName'], pwd=dat['pwd'])
+    return Response(check.id)
