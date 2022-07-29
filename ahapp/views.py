@@ -7,65 +7,29 @@ from rest_framework import viewsets, permissions, generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view
-
-from ahapp.serializers import UserSerializer
+from ahapp.serializers import *
 from .models import *
-import json
-# Create your views here.
 
 
-# @api_view(['GET'])
-# def HelloAPI(request):
-#     return Response("Hello world")
+class RegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = RegisterSerializer
+    
+
+class LoginView(generics.GenericAPIView):
+    serializer_class = LoginSerializer
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        token = serializer.validated_data
+        return Response({"token": token.key})
 
 
-# @api_view(['GET', 'POST'])
-# def booksAPI(request):
-#     if request.method == 'GET':
-#         books = Book.objects.all()
-#         serializer = BookSerializer(books, many=True)
-#         return Response(serializer.data, status=status.HTTP_200_OK)
-#     elif request.method == 'POST':
-#         serializer = BookSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class ProfileView(generics.RetrieveUpdateAPIView):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
 
 
-# @api_view(['GET'])
-# def bookAPI(request, bid):
-#     book = get_object_or_404(Book, bid=bid)
-#     serializer = BookSerializer(book)
-#     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-@api_view(['GET'])
-def allUserAPI(request):
-    user = Users.objects.all()
-    serializer = UserSerializer(user, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-@api_view(['GET'])
-def userInfoAPI(request, id):
-    user = get_object_or_404(Users, id=id)
-    serializer = UserSerializer(user)
-    return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-@api_view(['POST'])
-def registerAPI(request):
-    serializer = UserSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
-
-
-@api_view(['POST'])
-def loginCheckAPI(request):
-    dat = json.load(request)
-    check = get_object_or_404(
-        Users, userName=dat['userName'], pwd=dat['pwd'])
-    return Response(check.id)

@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'ahapp',
     'rest_framework',
     'corsheaders',
+    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
@@ -108,7 +109,11 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
-
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CALSSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+}
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'Asia/Seoul'

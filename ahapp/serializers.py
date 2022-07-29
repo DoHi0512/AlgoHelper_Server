@@ -1,42 +1,65 @@
-from rest_framework import serializers as s
+from asyncore import write
+from email.policy import default
+import imp
+from wsgiref.validate import validator
+from pkg_resources import require
 from .models import *
+from django.contrib.auth.models import User
+from django.contrib.auth.password_validation import validate_password
+from rest_framework import serializers as ser
+from rest_framework.authtoken.models import Token
+from rest_framework.validators import UniqueValidator
+from django.contrib.auth import authenticate
 
 
-# class BookSerializer(s.Serializer):
-#     bid = s.IntegerField(primary_key=True)
-#     title = s.CharField(max_length=50)
-#     author = s.CharField(max_length=50)
-#     category = s.CharField(max_length=50)
-#     pages = s.IntegerField()
-#     price = s.IntegerField()
-#     published_date = s.DateField()
-#     description = s.TextField()
+class RegisterSerializer(ser.ModelSerializer):
+    password = ser.CharField(
+        write_only=True,
+        required=True,
+        validators=[validate_password]
+    )
+    password2 = ser.CharField(
+        write_only=True, required=True
+    )
 
-#     def create(self, validated_data):
-#         return Book.objects.create(**validated_data)
-
-#     def update(self, instance, validated_data):
-#         instance.bid = validated_data.get('bid', instance.bid)
-#         instance.title = validated_data.get('title', instance.title)
-#         instance.author = validated_data.get('author', instance.author)
-#         instance.category = validated_data.get('category', instance.category)
-#         instance.pages = validated_data.get('pages', instance.pages)
-#         instance.price = validated_data.get('price', instance.price)
-#         instance.published_date = validated_data.get(
-#             'published_date', instance.published_date)
-#         instance.description = validated_data.get(
-#             'description', instance.description)
-#         instance.save()
-#         return instance
-
-
-# class BookSerializer(s.ModelSerializer):
-#     class Meta:
-#         model = Book
-#         fields = ['bid', 'title', 'author', 'category',
-#                   'pages', 'price', 'published_date', 'description']
-
-class UserSerializer(s.ModelSerializer):
     class Meta:
-        model = Users
-        fields = ['userName', 'pwd']
+        model = User
+        fields = ('username', 'password', 'password2')
+
+    def validate(self, data):
+        if data['password'] != data['password2']:
+            # raise ser.ValidationError(
+            #     {"password": "Password fields didn't match."}
+            # )
+            return -1
+        return data
+
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            password=validated_data['password'],
+        )
+        user.set_password(validated_data['password'])
+        user.save()
+        token = Token.objects.create(user=user)
+        return user
+
+
+class LoginSerializer(ser.Serializer):
+    username = ser.CharField(required=True)
+    password = ser.CharField(required=True, write_only=True)
+
+    def validate(self, data):
+        user = authenticate(**data)
+        if user:
+            token = Token.objects.get(user=user)
+            return token
+        raise ser.ValidationError(
+            {"error": "Unable to login woth provided credentials."}
+        )
+
+
+class ProfileSerializer(ser.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ('bojid')

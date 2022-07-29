@@ -4,8 +4,7 @@ from .views import *
 app_name = "users"
 
 urlpatterns = [
-    path('dohi/userInfo/<int:id>/', userInfoAPI),
-    path('dohi/register/', registerAPI),
-    path('dohi/allUser/', allUserAPI),
-    path('dohi/loginCheck/', loginCheckAPI),
+    path('register/', RegisterView.as_view()),
+    path('login/', LoginView.as_view()),
+    path('profile/<int:pk>/', ProfileView.as_view()),
 ]
