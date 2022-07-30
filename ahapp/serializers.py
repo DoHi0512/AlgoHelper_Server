@@ -1,9 +1,8 @@
-from asyncore import write
 from email.policy import default
-import imp
+
 from wsgiref.validate import validator
 from pkg_resources import require
-from .models import *
+from .models import Profile as Pro
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers as ser
@@ -28,16 +27,14 @@ class RegisterSerializer(ser.ModelSerializer):
 
     def validate(self, data):
         if data['password'] != data['password2']:
-            # raise ser.ValidationError(
-            #     {"password": "Password fields didn't match."}
-            # )
-            return -1
+            raise ser.ValidationError(
+                {"password": "Password fields didn't match."}
+            )
         return data
 
     def create(self, validated_data):
         user = User.objects.create_user(
             username=validated_data['username'],
-            password=validated_data['password'],
         )
         user.set_password(validated_data['password'])
         user.save()
@@ -61,5 +58,6 @@ class LoginSerializer(ser.Serializer):
 
 class ProfileSerializer(ser.ModelSerializer):
     class Meta:
-        model = Profile
-        fields = ('bojid')
+        model = Pro
+        fields = ('bojid',)
+
