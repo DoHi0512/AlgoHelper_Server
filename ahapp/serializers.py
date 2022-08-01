@@ -2,7 +2,7 @@ from email.policy import default
 
 from wsgiref.validate import validator
 from pkg_resources import require
-from .models import Profile as Pro
+from .models import Problem, Profile as Pro
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers as ser
@@ -61,3 +61,8 @@ class ProfileSerializer(ser.ModelSerializer):
         model = Pro
         fields = ('bojid',)
 
+
+class ProblemSerializer(ser.ModelSerializer):
+    class Meta:
+        model = Problem
+        fields = ('name', 'link')
