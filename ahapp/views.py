@@ -1,5 +1,7 @@
 from http.client import ResponseNotReady
+import json
 from os import stat
+import re
 from urllib import response
 from django.shortcuts import get_object_or_404, render
 from django.urls import is_valid_path
@@ -23,9 +25,10 @@ class LoginView(generics.GenericAPIView):
 
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
-        serializer.is_valid()
-        token = serializer.validated_data
-        return Response({"token": token.key})
+        if serializer.is_valid():
+            token = serializer.validated_data
+            return Response({"token": token.key})
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class ProfileView(generics.RetrieveAPIView):
@@ -33,16 +36,18 @@ class ProfileView(generics.RetrieveAPIView):
     serializer_class = ProfileSerializer
 
 
-@api_view(['GET'])
+@api_view(['POST'])
 def ProblemAPI(request):
-    html = urlopen(
-        "https://solved.ac/search?query=*r1&sort=random&direction=asc&page=1")
+    html = urlopen(request.data['url'])
     bsObject = BeautifulSoup(html, "html.parser")
     problem = []
     link = []
+    imgurl = []
     for lin in bsObject.find_all('a'):
         temp = str(lin.find_all('span', {'class': '__Latex__'}))
         if temp[1] == '<':
             problem.append(temp[25:-8])
             link.append(lin.get('href'))
-    return Response([problem, link])
+    for lin in bsObject.find_all('img', {'class': 'css-1vnxcg0'}):
+        imgurl.append(lin.get('src'))
+    return Response(data={'problem': problem, 'urls': link, 'imgurl': imgurl}, status=status.HTTP_200_OK)
