@@ -51,3 +51,15 @@ def ProblemAPI(request):
     for lin in bsObject.find_all('img', {'class': 'css-1vnxcg0'}):
         imgurl.append(lin.get('src'))
     return Response(data={'problem': problem, 'urls': link, 'imgurl': imgurl}, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+def UserSolvedAPI(request):
+    html = urlopen("https://www.acmicpc.net/user/" + request.data['username'])
+
+    bsObject = BeautifulSoup(html, "html.parser")
+    solved = []
+    for pro in bsObject.find('div', {'class': 'problem-list'}):
+        if pro.text.strip() != '':
+            solved.append(pro.text.strip())
+    return Response(data=solved, status=status.HTTP_200_OK)

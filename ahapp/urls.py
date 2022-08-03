@@ -8,4 +8,5 @@ urlpatterns = [
     path('login/', LoginView.as_view()),
     path('profile/<int:pk>/', ProfileView.as_view()),
     path('problem/', ProblemAPI),
+    path('solved/', UserSolvedAPI),
 ]
