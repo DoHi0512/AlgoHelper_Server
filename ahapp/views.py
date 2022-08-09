@@ -40,26 +40,23 @@ class ProfileView(generics.RetrieveAPIView):
 def ProblemAPI(request):
     html = urlopen(request.data['url'])
     bsObject = BeautifulSoup(html, "html.parser")
-    weekproblem = {'problem': [], 'link': []}
-    todayproblem = {'problem': ''}
-    imgurl = []
+    problem = {'problem': [], 'url': [], 'imgs': []}
     for lin in bsObject.find_all('a'):
         temp = str(lin.find_all('span', {'class': '__Latex__'}))
-        if temp[1] == '<':
-            if todayproblem['problem'] == "":
-                todayproblem["problem"] = temp[25:-8]
-                todayproblem["url"] = lin.get('href')
-            weekproblem['problem'].append(temp[25:-8])
-            weekproblem['link'].append(lin.get('href'))
-    for lin in bsObject.find_all('img', {'class': 'css-1vnxcg0'}):
-        imgurl.append(lin.get('src'))
-    return Response(data={'weekproblem': weekproblem, 'imgurl': imgurl, 'todayproblem': todayproblem}, status=status.HTTP_200_OK)
+        if temp[1] == '<' and len(problem['problem']) < 7:
+            problem['problem'].append(temp[25:-8])
+            problem['url'].append(lin.get('href'))
+        for lin in bsObject.find_all('img', {'class': 'css-1vnxcg0'}):
+            if len(problem['imgs']) < 7:
+                problem['imgs'].append(lin.get('src'))
+    
+
+    return Response(data={'problem': problem}, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
 def UserSolvedAPI(request):
     html = urlopen("https://www.acmicpc.net/user/" + request.data['username'])
-
     bsObject = BeautifulSoup(html, "html.parser")
     solved = []
     for pro in bsObject.find('div', {'class': 'problem-list'}):
