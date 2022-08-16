@@ -10,6 +10,5 @@ urlpatterns = [
     # path('problem/', ProblemAPI),
     # path('solved/', UserSolvedAPI),
     # path('api-auth/', include('rest_framework.urls')),
-    path('login/', Login.as_view()),
-    path('reg/', Registration.as_view())
+    path('test/', Register),
 ]
