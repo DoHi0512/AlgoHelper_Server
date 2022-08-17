@@ -1,41 +1,39 @@
 from tabnanny import verbose
+from tkinter.tix import Tree
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
-
-
+from django.utils import timezone
 from django.contrib.auth.base_user import BaseUserManager
-from django.db import models
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, username, boj_id, password):
+    def create_user(self, name, password, **extra_fields):
         user = self.model(
-            username=username,
-            boj_id=boj_id,
+            name=name, **extra_fields
         )
         user.set_password(password)
-        user.save(using=self._db)
+        user.save()
         return user
 
-    def create_superuser(self, username, boj_id, password):
-        user = self.create_user(
-            username=username,
-            password=password,
-            boj_id=boj_id
-        )
-        user.is_admin = True
-        user.save(using=self._db)
-        return user
+    def create_superuser(self, name, password, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_active', True)
+        return self.create_user(name, password, **extra_fields)
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-    username = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100, unique=True)
     boj_id = models.CharField(max_length=100)
+    is_staff = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    date_joined = models.DateTimeField(default=timezone.now())
+
+    USERNAME_FIELD = 'name'
+    REQUIRED_FIELDS = ['boj_id', ]
+
     objects = UserManager()
 
-    class Meta:
-        db_table = 'user'
-
-    USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = []
+    def __str__(self):
+        return self.name

@@ -22,6 +22,4 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('ahapp/', include('ahapp.urls')),
-    path('dj-rest-auth/', include('dj_rest_auth.urls')),
-    path('login/', include('dj_rest_auth.registration.urls'))
 ]
