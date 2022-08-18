@@ -24,9 +24,10 @@ class LoginView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         token = serializer.validated_data
         print(type(token))
-        if not isinstance(token,str):
+        if not isinstance(token, str):
             temp = token.key
-        else : temp = 'error'
+        else:
+            temp = 'error'
         return Response({'token': temp}, status=status.HTTP_200_OK)
 
 
@@ -57,3 +58,11 @@ def UserSolvedAPI(request):
         if pro.text.strip() != '':
             solved.append(pro.text.strip())
     return Response(data=solved, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+def GetBoj(request):
+    name = request.data['name']
+    user = User.objects.get(name=name)
+    print(user.boj_id)
+    return Response(data = user.boj_id, status=status.HTTP_200_OK)

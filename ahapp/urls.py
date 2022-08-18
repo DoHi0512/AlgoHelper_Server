@@ -7,6 +7,7 @@ app_name = "users"
 urlpatterns = [
     path('problem/', ProblemAPI),
     path('solved/', UserSolvedAPI),
+    path('getboj/', GetBoj),
     path('register/', RegisterView.as_view()),
     path('login/', LoginView.as_view())
 ]
