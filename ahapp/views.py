@@ -1,4 +1,5 @@
 from ast import Subscript
+import re
 from tokenize import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -10,6 +11,7 @@ from .serializers import LoginSerializer, RegisterSerializer
 from .models import *
 from rest_framework import viewsets, permissions, generics, status
 import datetime
+
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -33,29 +35,7 @@ class LoginView(generics.GenericAPIView):
         return Response({'token': temp}, status=status.HTTP_200_OK)
 
 
-@api_view(['POST'])
-def ProblemAPI(request):
-    html = urlopen(request.data['url'])
-    bsObject = BeautifulSoup(html, "html.parser")
-    problem = []
-    for lin in bsObject.find_all('a'):
-        obj = {}
-        temp = str(lin.find_all('span', {'class': '__Latex__'}))
-        if temp[1] == '<' and len(problem) < 7:
-            obj['problem'] = temp[25:-8]
-            obj['url'] = lin.get('href')
-            problem.append(obj)
-    i = 0
-    for link in bsObject.find_all('img', {'class': 'css-1vnxcg0'}):
-        if i == 7 : break
-        problem[i]['img'] = link.get('src')
-        i += 1
-    return Response(data=problem, status=status.HTTP_200_OK)
-
-
-@api_view(['POST'])
-def GetBoj(request):
-    name = request.data['name']
-    user = User.objects.get(name=name)
-    print(user.boj_id)
-    return Response(data=user.boj_id, status=status.HTTP_200_OK)
+class GetBoj(APIView):
+    def get(self, request):
+        user = User.objects.get(name=request.GET['name'])
+        return Response(data=user.boj_id, status=status.HTTP_200_OK)

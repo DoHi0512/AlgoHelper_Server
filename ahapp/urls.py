@@ -5,8 +5,7 @@ from .views import *
 app_name = "users"
 
 urlpatterns = [
-    path('problem/', ProblemAPI),
-    path('getboj/', GetBoj),
+    path('getboj/', GetBoj.as_view()),
     path('register/', RegisterView.as_view()),
     path('login/', LoginView.as_view())
 ]
