@@ -1,3 +1,5 @@
+from asyncio.windows_events import NULL
+from statistics import mode
 from tabnanny import verbose
 from tkinter.tix import Tree
 from django.contrib.auth.models import AbstractBaseUser,PermissionsMixin
@@ -26,6 +28,7 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(max_length=100, unique=True)
     boj_id = models.CharField(max_length=100)
+    problem = models.CharField(max_length=32000 , default=NULL)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField(default=timezone.now())
