@@ -1,5 +1,4 @@
-from ast import literal_eval
-import secrets
+from email.policy import HTTP
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view
@@ -80,7 +79,7 @@ def job():
         if res.status_code == 200:
             res = res.json()
             first = res['tier'] - 4
-            end = res['tier'] + 2
+            end = res['tier'] + 1
             if first < 0:
                 first = 0
             if end >= len(tierList):
@@ -88,15 +87,16 @@ def job():
             newTier = "*" + tierList[first] + \
                 ".." + tierList[end]
             response = requests.get("https://solved.ac/api/v3/search/problem",
-                                    params={'query': newTier, 'sort': 'random'})
+                                    params={'query': newTier + ' ' + f'!@{user.boj_id}' + ' lang:ko', 'sort': 'random'})
             user.problem = response.text
             user.save()
-        time.sleep(10)
+            print(f'{user.name} is changed')
+        time.sleep(4)
 
 
 def main():
     sched = BackgroundScheduler()
-    sched.add_job(job, 'cron', day_of_week = 'mon', hour = 9, id='test')
+    sched.add_job(job, 'cron', day_of_week = 'mon' , hour = 9, id='test')
     sched.start()
 
 
@@ -106,3 +106,11 @@ def ProblemAPI(request):
     pro = User.objects.get(name=name)
     pro = json.loads(pro.problem)
     return Response(data=pro, status=status.HTTP_200_OK)
+
+
+# @api_view(['PUT'])
+# def ModifyAPI(request):
+#     name = request.data['username']
+#     user = User.objects.get(name = name)
+#     user.delete()
+#     return Response(status=status.HTTP_200_OK)

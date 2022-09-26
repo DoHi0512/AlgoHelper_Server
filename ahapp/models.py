@@ -1,7 +1,5 @@
 from asyncio.windows_events import NULL
-from statistics import mode
-from tabnanny import verbose
-from tkinter.tix import Tree
+
 from django.contrib.auth.models import AbstractBaseUser,PermissionsMixin
 
 from django.db import models
